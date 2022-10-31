@@ -250,15 +250,15 @@ int main(int argc, char* argv[]) {
         {
             Speed = GetInput<int>();
         } while (Speed < 0);
-        std::cout << " Enter Amount of elements (10 min | 230 max)!!!\n";
+        std::cout << " Enter Amount of elements (10 min | 800 max)!!!\n";
         int Amount;
         do
         {
             Amount = GetInput<int>();
-        } while (Amount < 10 || Amount > 230);
+        } while (Amount < 10 || Amount > 800);
 
         std::cout << "Nice!!!\n Visualizing...";
-        Visualizer::SetupWindow(800, 600);
+        Visualizer::SetupWindow(800, 800);
 
         Visualizer::Setup(Speed, Amount);
         

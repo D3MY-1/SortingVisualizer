@@ -50,7 +50,7 @@ private:
 	static inline int windowWith;
 	static inline int windowHeight;
 
-	static constexpr int paddingPx = 2;
+	static inline int paddingPx;
 
 	static inline bool running;
 

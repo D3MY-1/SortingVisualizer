@@ -29,6 +29,13 @@ bool Visualizer::SetupWindow(int width, int height)
 
 void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 {
+	if (ArraySize * 4 < windowWith)
+		paddingPx = 2;
+	else if (ArraySize * 2 < windowWith)
+		paddingPx = 1;
+	else
+		paddingPx = 0;
+
 	delay = UpdatePerSecond > 0 ?  1000.f / UpdatePerSecond : 0;
 	array = std::vector<int>(ArraySize);
 
@@ -85,32 +92,32 @@ void Visualizer::Draw()
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
-	int pad = (int)array.size() * paddingPx;
+	float pad = array.size() * paddingPx;
 
-	int widthPer1 = (windowWith - pad) / (int)array.size();
+	float widthPer1 = (windowWith - pad) / array.size();
 
-	SDL_Rect rect;
+	SDL_FRect rect;
 
 	SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
 
 	for (int i = 0; i < array.size(); i++)
 	{
-		rect = SDL_Rect{ (widthPer1 + paddingPx) * i,windowHeight - (int)floor(((float)windowHeight / (float)array.size()) * array[i]) ,widthPer1,(int)floor(((float)windowHeight / (float)array.size()) * array[i]) };
-		SDL_RenderFillRect(renderer, &rect);
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * i,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[i]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[i]) };
+		SDL_RenderFillRectF(renderer, &rect);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
 	for (auto& a : comp)
 	{
-		rect = SDL_Rect{ (widthPer1 + paddingPx) * a,windowHeight - (int)floor(((float)windowHeight / (float)array.size()) * array[a]) ,widthPer1,(int)floor(((float)windowHeight / (float)array.size()) * array[a]) };
-		SDL_RenderFillRect(renderer, &rect);
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[a]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[a]) };
+		SDL_RenderFillRectF(renderer, &rect);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
 	for (auto& a : swap)
 	{
-		rect = SDL_Rect{ (widthPer1 + paddingPx) * a,windowHeight - (int)floor(((float)windowHeight / (float)array.size()) * array[a]) ,widthPer1,(int)floor(((float)windowHeight / (float)array.size()) * array[a]) };
-		SDL_RenderFillRect(renderer, &rect);
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[a]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[a]) };
+		SDL_RenderFillRectF(renderer, &rect);
 	}
 
 	comp.clear();
