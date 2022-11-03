@@ -65,6 +65,8 @@ void Visualizer::Start(tSort2 vec)
 	std::shuffle(array.begin(), array.end(), rng);
 	running = true;
 	vec(array);
+	comp = std::vector<int>();
+	swap = std::vector<int>();
 }
 
 void Visualizer::Comparison(int Elem)
@@ -72,7 +74,7 @@ void Visualizer::Comparison(int Elem)
 	comp.emplace_back(Elem);
 }
 
-void Visualizer::Swap(int Elem)
+void Visualizer::isInPlace(int Elem)
 {
 	swap.clear();
 	swap.emplace_back(Elem);
@@ -157,3 +159,9 @@ void Visualizer::Events()
 	
 }
 
+void Visualizer::Swap(int iDx1, int iDx2)
+{
+	int temp = array[iDx1];
+	array[iDx1] = array[iDx2];
+	array[iDx2] = temp;
+}

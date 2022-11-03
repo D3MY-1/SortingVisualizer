@@ -61,16 +61,14 @@ namespace Test
             {
                 if (i + 1 >= end)
                 {
-                    Visualizer::Swap(end - 1);
+                    Visualizer::isInPlace(end - 1);
                     break;
                 }
 
                 Visualizer::Comparison(i + 1);
                 if (vec[i + 1] < vec[i])
                 {
-                    temp = vec[i + 1];
-                    vec[i + 1] = vec[i];
-                    vec[i] = temp;
+                    Visualizer::Swap(i, i + 1);
                     sorted = false;
                     temp = vec.size();
                     temp = i;
@@ -104,16 +102,14 @@ namespace Test
             {
                 if (forward ? i + 1 >= end : i < start)
                 {
-                    Visualizer::Swap(forward ? end - 1 : start);
+                    Visualizer::isInPlace(forward ? end - 1 : start);
                     break;
                 }
 
                 Visualizer::Comparison(forward ? i + 1 : i);
                 if (vec[i + 1] < vec[i])
                 {
-                    temp = vec[i + 1];
-                    vec[i + 1] = vec[i];
-                    vec[i] = temp;
+                    Visualizer::Swap(i, i + 1);
                     sorted = false;
                     temp = forward ? vec.size() : 0;
                     temp = i;
@@ -137,15 +133,13 @@ namespace Test
             if (pos == 0 || vec[pos] >= vec[pos - 1])
             {
                 if (yes)
-                    Visualizer::Swap(pos);
+                    Visualizer::isInPlace(pos);
                 pos++;
                 yes = false;
             }
             else
             {
-                temp = vec[pos - 1];
-                vec[pos - 1] = vec[pos];
-                vec[pos] = temp;
+                Visualizer::Swap(pos, pos - 1);
                 pos--;
                 yes = true;
             }
@@ -174,6 +168,7 @@ namespace Test
             for (int i = start; i < vec.size(); i++)
             {
                 Visualizer::Comparison(i);
+                Visualizer::Comparison(it);
                 if (vec[it] > vec[i])
                 {
                     it = i;
@@ -192,12 +187,73 @@ namespace Test
                     }
             }
 
-            Visualizer::Swap(start);
+            Visualizer::isInPlace(start);
             temp = vec[it];
             vec[it] = vec[start];
             vec[start] = temp;
             start++;
         }
+    }
+
+    void InsertionSortB(std::vector<int>& vec)
+    {
+        int i, key, j;
+        for (i = 1; i < vec.size(); i++)
+        {
+            key = vec[i];
+            j = i - 1;
+
+            
+
+            while (j >= 0 && vec[j] > key)
+            {
+                Visualizer::Comparison(j);
+                Visualizer::Draw();
+                vec[j + 1] = vec[j];
+                j = j - 1;
+                
+            }
+            vec[j + 1] = key;
+            Visualizer::isInPlace(j + 1);
+            
+        }
+        Visualizer::Draw();
+    }
+
+    void RadixSortB(std::vector<int>& vec)
+    {
+        auto countingSort = [](std::vector<int>& vec, int exp) {
+            std::vector<int> outp(vec.size());
+            int i, count[10] = { 0 };
+
+            for (i = 0; i < vec.size(); i++)
+                count[(vec[i] / exp) % 10]++;
+
+            for (i = 1; i < 10; i++)
+                count[i] += count[i - 1];
+
+            for (i = vec.size() - 1; i >= 0; i--)
+            {
+                outp[count[(vec[i] / exp) % 10] - 1] = vec[i];
+                count[(vec[i] / exp) % 10]--;
+            }
+
+            for (i = 0; i < vec.size(); i++)
+            {
+                vec[i] = outp[i];
+                Visualizer::Comparison(i);
+                Visualizer::Draw();
+            }
+                
+        };
+
+        int max = *std::max_element(vec.begin(), vec.end());
+
+        for (int exp = 1; max / exp > 0; exp *= 10)
+            countingSort(vec, exp);
+
+        Visualizer::Draw();
+        
     }
 }
 
@@ -231,8 +287,8 @@ int main(int argc, char* argv[]) {
 
     while (true)
     {
-        std::cout << "Hello to visualizer 0.1v !!!\n";
-        std::cout << "Choose 1 of 4 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n";
+        std::cout << "Hello to visualizer 0.2v !!!\n";
+        std::cout << "Choose 1 of 6 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n";
         bool wrong = true;
 
         int result;
@@ -240,7 +296,7 @@ int main(int argc, char* argv[]) {
         do
         {
             result = GetInput<int>();
-        } while (result >= 5 || result <= 0);
+        } while (result >= 7 || result <= 0);
 
         std::cout << " Nice!\n Now you need to input Speed of algorythm and Amount of elements!!!\n";
         std::cout << " Enter Speed (0 for max speed)!!!\n";
@@ -277,6 +333,12 @@ int main(int argc, char* argv[]) {
             break;
         case 4:
             sort = Test::SelectionSortB;
+            break;
+        case 5:
+            sort = Test::InsertionSortB;
+            break;
+        case 6:
+            sort = Test::RadixSortB;
         }
 
         Visualizer::Start(sort);

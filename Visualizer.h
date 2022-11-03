@@ -25,10 +25,13 @@ public:
 	/// </summary>
 	/// <param name="Elem1 pass 1 element that is Swapped"></param>
 	/// <param name="Elem2 pass 2 element that is Swaapped"></param>
-	static void Swap(int Elem);
+	static void isInPlace(int Elem);
 	/// <summary>
 	/// Call at end of 1 cycle
 	/// </summary>
+	
+	static void Swap(int iDx1, int iDx2);
+
 	static void Draw();
 
 	static void Stop();
