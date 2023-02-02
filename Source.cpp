@@ -11,8 +11,8 @@
 
 namespace Test
 {
-    template <class _Iter>
-    void BubblesortA(_Iter first, _Iter Last)
+    template <class _Iter,typename Pred>
+    void BubblesortA(_Iter first, _Iter Last,Pred pr)
     {
         bool sorted = false;
         int end = 0;
@@ -22,7 +22,7 @@ namespace Test
             sorted = true;
 
             int a;
-            int b = 0;
+            //int b = 0;
 
             for (auto i = first; ; i++)
             {
@@ -32,15 +32,15 @@ namespace Test
                     end++;
                     break;
                 }
-                Visualizer::Comparison(a + 1);
-                if (*std::next(i) < *i)
+                //Visualizer::Comparison(a + 1);
+                if (pr(*std::next(i),*i))
                 {
                     
                     std::iter_swap(i, std::next(i));
                     sorted = false;
-                    b = a;
+                    //b = a;
                 }
-                Visualizer::Draw();
+                //Visualizer::Draw();
             }
         }
     }
@@ -323,7 +323,7 @@ int main(int argc, char* argv[]) {
         switch (result)
         {
         case 1:
-            Visualizer::Start(Test::BubblesortB);
+            Visualizer::Start(Test::BubblesortA);
             break;
         case 2:
             Visualizer::Start(Test::ShakerSortB);
