@@ -27,6 +27,7 @@ bool Visualizer::SetupWindow(int width, int height)
 	return true;
 }
 
+
 void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 {
 
@@ -45,11 +46,11 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 	indexes = std::vector<IntElem>(ArraySize);
 
 	IntElem::SetArray(&array);
-	//IntElem::SetIndexes(&indexes);
 
-	for (int i = 0; i < indexes.size(); i++)
+	for (int i = 0; i < ArraySize; i++)
 	{
 		indexes[i] = i;
+		indexes[i].setIndex(i);
 	}
 
 	for (int i = 0; i < array.size(); i++)
@@ -69,8 +70,9 @@ void Visualizer::Start(tSort func)
 	IntElem::EnableTracking();
 	auto lamda = [](IntElem a, IntElem b)
 	{	
+		bool c = a < b;
 		Visualizer::Draw();
-		return a < b;
+		return c;
 	};
 	std::shuffle(array.begin(), array.end(), rng);
 	running = true;
@@ -79,6 +81,8 @@ void Visualizer::Start(tSort func)
 	{
 		indexes[i] = i;
 	}
+	comp = std::set<int>();
+	swap = std::vector<int>();
 }
 
 void Visualizer::Start(tElemArray f)
@@ -87,13 +91,14 @@ void Visualizer::Start(tElemArray f)
 	std::shuffle(array.begin(), array.end(), rng);
 	running = true;
 	f(array);
-	comp = std::vector<int>();
+	//comp = std::vector<int>();
+	comp = std::set<int>();
 	swap = std::vector<int>();
 }
 
 void Visualizer::Comparison(int Elem)
 {
-	comp.emplace_back(Elem);
+	comp.insert(Elem);
 }
 
 void Visualizer::isInPlace(int Elem)
@@ -102,6 +107,10 @@ void Visualizer::isInPlace(int Elem)
 	swap.emplace_back(Elem);
 }
 
+
+/* TODO: Rewrite function so that it draws only 60 times or 120
+         Make another function that will calculate how much time and so on
+*/
 void Visualizer::Draw()
 {
 	if (!running)

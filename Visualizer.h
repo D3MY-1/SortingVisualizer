@@ -3,6 +3,7 @@
 #include <random>
 #include <vector>
 #include "IntElem.h"
+#include <set>
 
 class Visualizer
 {
@@ -50,7 +51,12 @@ private:
 	static inline std::vector<IntElem> indexes;
 	static inline std::mt19937 rng;
 
-	static inline std::vector<int> comp;
+	/* TODO: Make one array that will handle all colors 
+			 Maybe make an array that will contain all pillar collors so it will eliminate unnenasary drawing 
+	*/
+	static inline std::set<int> comp;
+
+
 	static inline std::vector<int> swap;
 
 	static inline SDL_Window* window;
