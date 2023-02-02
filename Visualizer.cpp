@@ -29,6 +29,10 @@ bool Visualizer::SetupWindow(int width, int height)
 
 void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 {
+
+	IntElem::SetComp(Visualizer::Comparison);
+	IntElem::SetSwap(Visualizer::isInPlace);
+
 	if (ArraySize * 4 < windowWith)
 		paddingPx = 2;
 	else if (ArraySize * 2 < windowWith)
@@ -38,6 +42,15 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 
 	delay = UpdatePerSecond > 0 ?  1000.f / UpdatePerSecond : 0;
 	array = std::vector<int>(ArraySize);
+	indexes = std::vector<IntElem>(ArraySize);
+
+	IntElem::SetArray(&array);
+	//IntElem::SetIndexes(&indexes);
+
+	for (int i = 0; i < indexes.size(); i++)
+	{
+		indexes[i] = i;
+	}
 
 	for (int i = 0; i < array.size(); i++)
 	{
@@ -51,20 +64,29 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 
 
 
-void Visualizer::Start(void* func)
+void Visualizer::Start(tSort func)
 {
-
+	IntElem::EnableTracking();
+	auto lamda = [](IntElem a, IntElem b)
+	{	
+		Visualizer::Draw();
+		return a < b;
+	};
 	std::shuffle(array.begin(), array.end(), rng);
-	tSort f = (tSort)func;
 	running = true;
-	f(array.begin(), array.end());
+	func(indexes.begin(), indexes.end(),lamda);
+	for (int i = 0; i < indexes.size(); i++)
+	{
+		indexes[i] = i;
+	}
 }
 
-void Visualizer::Start(tSort2 vec)
+void Visualizer::Start(tElemArray f)
 {
+	IntElem::DisableTracking();
 	std::shuffle(array.begin(), array.end(), rng);
 	running = true;
-	vec(array);
+	f(array);
 	comp = std::vector<int>();
 	swap = std::vector<int>();
 }
@@ -104,21 +126,21 @@ void Visualizer::Draw()
 
 	for (int i = 0; i < array.size(); i++)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * i,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[i]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[i]) };
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * i,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[i]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[i]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
 	for (auto& a : comp)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[a]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[a]) };
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
 	for (auto& a : swap)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[a]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[a]) };
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
 

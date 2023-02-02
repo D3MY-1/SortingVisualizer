@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <numeric>
 
+
+
 #undef main
 
 
@@ -27,11 +29,9 @@ namespace Test
                 a = i - first;
                 if (std::next(i) == Last - end)
                 {
-                    Visualizer::Swap(b + 1);
                     end++;
                     break;
                 }
-                
                 Visualizer::Comparison(a + 1);
                 if (*std::next(i) < *i)
                 {
@@ -186,7 +186,6 @@ namespace Test
                         break;
                     }
             }
-
             Visualizer::isInPlace(start);
             temp = vec[it];
             vec[it] = vec[start];
@@ -205,7 +204,7 @@ namespace Test
 
             
 
-            while (j >= 0 && vec[j] > key)
+            while (j >= 0 && int(vec[j]) > key)
             {
                 Visualizer::Comparison(j);
                 Visualizer::Draw();
@@ -288,7 +287,7 @@ int main(int argc, char* argv[]) {
     while (true)
     {
         std::cout << "Hello to visualizer 0.2v !!!\n";
-        std::cout << "Choose 1 of 6 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n";
+        std::cout << "Choose 1 of 6 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n";
         bool wrong = true;
 
         int result;
@@ -296,7 +295,7 @@ int main(int argc, char* argv[]) {
         do
         {
             result = GetInput<int>();
-        } while (result >= 7 || result <= 0);
+        } while (result >= 9 || result <= 0);
 
         std::cout << " Nice!\n Now you need to input Speed of algorythm and Amount of elements!!!\n";
         std::cout << " Enter Speed (0 for max speed)!!!\n";
@@ -318,30 +317,35 @@ int main(int argc, char* argv[]) {
 
         Visualizer::Setup(Speed, Amount);
         
-        Visualizer::tSort2 sort = nullptr;
-
+        //Visualizer::tSort2 sort = nullptr;
+        Visualizer::tSort sort1 = nullptr;
+        
         switch (result)
         {
         case 1:
-            sort = Test::BubblesortB;
+            Visualizer::Start(Test::BubblesortB);
             break;
         case 2:
-            sort = Test::ShakerSortB;
+            Visualizer::Start(Test::ShakerSortB);
             break;
         case 3:
-            sort = Test::GnomeSortB;
+            Visualizer::Start(Test::GnomeSortB);
             break;
         case 4:
-            sort = Test::SelectionSortB;
+            Visualizer::Start(Test::SelectionSortB);
             break;
         case 5:
-            sort = Test::InsertionSortB;
+            Visualizer::Start(Test::InsertionSortB);
             break;
         case 6:
-            sort = Test::RadixSortB;
+            Visualizer::Start(Test::RadixSortB);
+            break;
+        case 7:
+            Visualizer::Start(std::sort);
+            break;
+        case 8:
+            Visualizer::Start(std::stable_sort);
         }
-
-        Visualizer::Start(sort);
         system("cls");
         SDL_Delay(2000);
         Visualizer::Stop();

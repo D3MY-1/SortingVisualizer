@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <random>
 #include <vector>
+#include "IntElem.h"
 
 class Visualizer
 {
@@ -10,10 +11,13 @@ public:
 	static bool SetupWindow(int width, int height);
 
 	static void Setup(int UpdatePerSecond, int ArraySize);
-	typedef void(*tSort)(std::vector<int>::iterator, std::vector<int>::iterator);
-	static void Start(void* func);
-	typedef void(*tSort2)(std::vector<int>&);
-	static void Start(tSort2 vec);
+
+	typedef bool (*tFunc)(IntElem, IntElem);
+	typedef void(*tSort)(std::vector<IntElem>::iterator, std::vector<IntElem>::iterator, tFunc f);
+	static void Start(tSort func);
+	typedef void(*tIndexArray)(std::vector<IntElem>&);
+	typedef void(*tElemArray)(std::vector<int>&);
+	static void Start(tElemArray vec);
 	/// <summary>
 	/// Call When Comparison is performed
 	/// </summary>
@@ -37,11 +41,13 @@ public:
 	static void Stop();
 
 private:
+	
 
 	static void Events();
 
 	static inline float delay;
 	static inline std::vector<int> array;
+	static inline std::vector<IntElem> indexes;
 	static inline std::mt19937 rng;
 
 	static inline std::vector<int> comp;
