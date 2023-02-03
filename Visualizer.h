@@ -57,7 +57,12 @@ private:
 	/* TODO: Make one array that will handle all colors 
 			 Maybe make an array that will contain all pillar collors so it will eliminate unnenasary drawing 
 	*/
+	// For Multithreading
 	static inline std::set<int> compDrawing;
+	static inline std::set<int> history;
+
+
+
 	static inline std::set<int> comp;
 
 	static inline std::mutex comp_mutex;

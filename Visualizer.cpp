@@ -78,6 +78,7 @@ void Visualizer::Start(tSort func)
 	comp = std::set<int>();
 	compDrawing = std::set<int>();
 	swap = std::vector<int>();
+	history = std::set<int>();
 }
 
 void Visualizer::Start(tElemArray f)
@@ -96,6 +97,7 @@ void Visualizer::Start(tElemArray f)
 	comp = std::set<int>();
 	compDrawing = std::set<int>();
 	swap = std::vector<int>();
+	history = std::set<int>();
 }
 
 void Visualizer::Comparison(int Elem)
@@ -137,7 +139,7 @@ void Visualizer::Draw()
 		std::this_thread::sleep_for(delay - elapsed);
 	
 	//Events();
-	std::this_thread::sleep_for(elapsed > delay ? std::chrono::microseconds(0) : delay - elapsed);
+	//std::this_thread::sleep_for(elapsed > delay ? std::chrono::microseconds(0) : delay - elapsed);
 		
 }
 
@@ -172,17 +174,33 @@ void Visualizer::draw(SDL_Renderer* renderer)
 
 	SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
 	
+
+	std::set<int> draw;
 	{
 		std::lock_guard<std::mutex> guard(comp_mutex);
-		for (auto& a : compDrawing)
+
+		if (compDrawing.size() > 0)
 		{
-			rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
-			SDL_RenderFillRectF(renderer, &rect);
+			draw = compDrawing;
+			history = compDrawing;
 		}
+			
+		else
+			draw = history;
+
+		
+		
+		
 		if (delay < draw_delay)
 		{
 			compDrawing.clear();
 		}
+	}
+
+	for (auto& a : draw)
+	{
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
+		SDL_RenderFillRectF(renderer, &rect);
 	}
 	
 
@@ -241,6 +259,8 @@ void Visualizer::start()
 		draw(renderer);
 	}
 	
+	draw(renderer);
+
 	SDL_Delay(2000);
 
 	SDL_DestroyWindow(window);
