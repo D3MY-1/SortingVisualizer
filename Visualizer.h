@@ -5,6 +5,7 @@
 #include "IntElem.h"
 #include <set>
 #include <thread>
+#include <mutex>
 
 class Visualizer
 {
@@ -47,8 +48,8 @@ private:
 
 	static void start();
 
-	static inline float delay;
-	static inline float draw_delay;
+	static inline std::chrono::duration<float,std::micro> delay;
+	static inline std::chrono::duration<float,std::micro> draw_delay;
 	static inline std::vector<int> array;
 	static inline std::vector<IntElem> indexes;
 	static inline std::mt19937 rng;
@@ -56,7 +57,10 @@ private:
 	/* TODO: Make one array that will handle all colors 
 			 Maybe make an array that will contain all pillar collors so it will eliminate unnenasary drawing 
 	*/
+	static inline std::set<int> compDrawing;
 	static inline std::set<int> comp;
+
+	static inline std::mutex comp_mutex;
 
 
 	static inline std::vector<int> swap;
@@ -70,6 +74,8 @@ private:
 
 	static inline bool running;
 
-	static constexpr int FPS = 120;
+	static constexpr int FPS = 60;
+
+	
 
 };

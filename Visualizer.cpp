@@ -20,8 +20,9 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 	else
 		paddingPx = 0;
 
-	delay = UpdatePerSecond > 0 ?  1000.f / UpdatePerSecond : 0;
-	draw_delay = 1000 / FPS;
+	
+	delay = UpdatePerSecond > 0 ?  std::chrono::milliseconds(1000) / UpdatePerSecond : std::chrono::microseconds(0);
+	draw_delay = std::chrono::milliseconds(1000) / FPS;
 	array = std::vector<int>(ArraySize);
 	indexes = std::vector<IntElem>(ArraySize);
 
@@ -50,14 +51,17 @@ void Visualizer::Start(tSort func)
 	IntElem::EnableTracking();
 	auto lamda = [](IntElem a, IntElem b)
 	{	
-		bool c = a < b;
 		Visualizer::Draw();
+		bool c = a < b;
+		
 		return c;
 	};
 	std::shuffle(array.begin(), array.end(), rng);
 	running = true;
 
 	drawThread = std::thread(start);
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	func(indexes.begin(), indexes.end(),lamda);
 	running = false;
@@ -72,6 +76,7 @@ void Visualizer::Start(tSort func)
 
 	
 	comp = std::set<int>();
+	compDrawing = std::set<int>();
 	swap = std::vector<int>();
 }
 
@@ -82,17 +87,20 @@ void Visualizer::Start(tElemArray f)
 	
 	running = true;
 	drawThread = std::thread(start);
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	f(array);
 	running = false;
 	drawThread.join();
 	
 	//comp = std::vector<int>();
 	comp = std::set<int>();
+	compDrawing = std::set<int>();
 	swap = std::vector<int>();
 }
 
 void Visualizer::Comparison(int Elem)
 {
+	
 	comp.insert(Elem);
 }
 
@@ -106,8 +114,28 @@ void Visualizer::Draw()
 {
 	if (!running)
 		return;
-	Events();
-	SDL_Delay(delay);
+	auto start = std::chrono::high_resolution_clock::now();
+	{
+		std::lock_guard<std::mutex> guard(comp_mutex);
+
+		for (auto a : comp)
+		{
+			compDrawing.insert(a);
+		}
+		comp.clear();
+		if (delay > draw_delay)
+			compDrawing.clear();
+	}
+	
+	
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	//Events();
+	
+	//Events();
+	std::this_thread::sleep_for(elapsed > delay ? std::chrono::microseconds(0) : delay - elapsed);
+		
 }
 
 
@@ -116,8 +144,12 @@ void Visualizer::Draw()
 */
 void Visualizer::draw(SDL_Renderer* renderer)
 {
+	
+	
+	//std::cout << comp.size() << '\n';
+
 		//Events();
-	auto start = SDL_GetPerformanceCounter();
+	auto start = std::chrono::high_resolution_clock::now();
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
@@ -136,11 +168,20 @@ void Visualizer::draw(SDL_Renderer* renderer)
 	}
 
 	SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
-	for (auto& a : comp)
+	
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
-		SDL_RenderFillRectF(renderer, &rect);
+		std::lock_guard<std::mutex> guard(comp_mutex);
+		for (auto& a : compDrawing)
+		{
+			rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
+			SDL_RenderFillRectF(renderer, &rect);
+		}
+		if (delay < draw_delay)
+		{
+			compDrawing.clear();
+		}
 	}
+	
 
 	SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
 	for (auto& a : swap)
@@ -148,18 +189,19 @@ void Visualizer::draw(SDL_Renderer* renderer)
 		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
-
-	comp.clear();
 	//		swap.clear();
 
 	SDL_RenderPresent(renderer);
 
-	auto end = SDL_GetPerformanceCounter();
+	auto end = std::chrono::high_resolution_clock::now();
 
-	float elapsed = (end - start) / SDL_GetPerformanceFrequency() * 1000.f;
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-	if (floor(Visualizer::draw_delay - elapsed) > 0)
-		SDL_Delay(floor(Visualizer::draw_delay - elapsed));
+	if (floor(Visualizer::draw_delay.count() - elapsed.count()) > 0)
+		std::this_thread::sleep_for(draw_delay - elapsed);
+
+	
+		
 	
 }
 
