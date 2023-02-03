@@ -133,6 +133,9 @@ void Visualizer::Draw()
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	//Events();
 	
+	if (delay > elapsed)
+		std::this_thread::sleep_for(delay - elapsed);
+	
 	//Events();
 	std::this_thread::sleep_for(elapsed > delay ? std::chrono::microseconds(0) : delay - elapsed);
 		

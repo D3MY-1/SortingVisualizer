@@ -48,8 +48,8 @@ private:
 
 	static void start();
 
-	static inline std::chrono::duration<float,std::micro> delay;
-	static inline std::chrono::duration<float,std::micro> draw_delay;
+	static inline std::chrono::microseconds delay;
+	static inline std::chrono::microseconds draw_delay;
 	static inline std::vector<int> array;
 	static inline std::vector<IntElem> indexes;
 	static inline std::mt19937 rng;
