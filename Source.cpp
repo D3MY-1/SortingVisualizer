@@ -347,8 +347,6 @@ int main(int argc, char* argv[]) {
             Visualizer::Start(std::stable_sort);
         }
         system("cls");
-        SDL_Delay(2000);
-        Visualizer::Stop();
     }
 
     

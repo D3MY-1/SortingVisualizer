@@ -1,30 +1,9 @@
 #include "Visualizer.h"
 
-bool Visualizer::SetupWindow(int width, int height)
+void Visualizer::SetupWindow(int width, int height)
 {
-	window = SDL_CreateWindow(
-		"Cringe visuals",
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
-		width, height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
-	);
 	windowWith = width;
 	windowHeight = height;
-
-	if (!window) {
-		return false;
-	}
-
-	// SDL_GetWindowSize(window, &vWidth, &vHeight);
-
-	// renderer
-	renderer = SDL_CreateRenderer(window, -1, 0);
-
-	if (!renderer) {
-		return false;
-	}
-	return true;
 }
 
 
@@ -42,6 +21,7 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 		paddingPx = 0;
 
 	delay = UpdatePerSecond > 0 ?  1000.f / UpdatePerSecond : 0;
+	draw_delay = 1000 / FPS;
 	array = std::vector<int>(ArraySize);
 	indexes = std::vector<IntElem>(ArraySize);
 
@@ -76,11 +56,21 @@ void Visualizer::Start(tSort func)
 	};
 	std::shuffle(array.begin(), array.end(), rng);
 	running = true;
+
+	drawThread = std::thread(start);
+
 	func(indexes.begin(), indexes.end(),lamda);
+	running = false;
+	drawThread.join();
+
 	for (int i = 0; i < indexes.size(); i++)
 	{
 		indexes[i] = i;
 	}
+
+	
+
+	
 	comp = std::set<int>();
 	swap = std::vector<int>();
 }
@@ -89,8 +79,13 @@ void Visualizer::Start(tElemArray f)
 {
 	IntElem::DisableTracking();
 	std::shuffle(array.begin(), array.end(), rng);
+	
 	running = true;
+	drawThread = std::thread(start);
 	f(array);
+	running = false;
+	drawThread.join();
+	
 	//comp = std::vector<int>();
 	comp = std::set<int>();
 	swap = std::vector<int>();
@@ -107,20 +102,21 @@ void Visualizer::isInPlace(int Elem)
 	swap.emplace_back(Elem);
 }
 
+void Visualizer::Draw()
+{
+	if (!running)
+		return;
+	Events();
+	SDL_Delay(delay);
+}
+
 
 /* TODO: Rewrite function so that it draws only 60 times or 120
          Make another function that will calculate how much time and so on
 */
-void Visualizer::Draw()
+void Visualizer::draw(SDL_Renderer* renderer)
 {
-	if (!running)
-	{
-		Stop();
-		return;
-	}
-
-	Events();
-
+		//Events();
 	auto start = SDL_GetPerformanceCounter();
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
@@ -136,7 +132,7 @@ void Visualizer::Draw()
 	for (int i = 0; i < array.size(); i++)
 	{
 		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * i,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[i]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[i]]) };
-		SDL_RenderFillRectF(renderer, &rect);
+			SDL_RenderFillRectF(renderer, &rect);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
@@ -162,12 +158,46 @@ void Visualizer::Draw()
 
 	float elapsed = (end - start) / SDL_GetPerformanceFrequency() * 1000.f;
 
-	if (floor(delay - elapsed) > 0)
-		SDL_Delay(floor(delay - elapsed));
+	if (floor(Visualizer::draw_delay - elapsed) > 0)
+		SDL_Delay(floor(Visualizer::draw_delay - elapsed));
+	
 }
 
-void Visualizer::Stop()
+void Visualizer::start()
 {
+	SDL_Window* window = nullptr;
+	SDL_Renderer* renderer = nullptr;
+
+	
+
+	window = SDL_CreateWindow(
+		"Cringe visuals",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		windowWith, windowHeight,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+	);
+
+	if (!window) {
+		return;
+	}
+
+	// SDL_GetWindowSize(window, &vWidth, &vHeight);
+
+	// renderer
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+	if (!renderer) {
+		return;
+	}
+	while (running)
+	{
+		Events();
+		draw(renderer);
+	}
+	
+	SDL_Delay(2000);
+
 	SDL_DestroyWindow(window);
 	window = nullptr;
 	SDL_DestroyRenderer(renderer);

@@ -4,12 +4,13 @@
 #include <vector>
 #include "IntElem.h"
 #include <set>
+#include <thread>
 
 class Visualizer
 {
 public:
 
-	static bool SetupWindow(int width, int height);
+	static void SetupWindow(int width, int height);
 
 	static void Setup(int UpdatePerSecond, int ArraySize);
 
@@ -39,14 +40,15 @@ public:
 
 	static void Draw();
 
-	static void Stop();
-
 private:
-	
+	static void draw(SDL_Renderer* renderer);
 
 	static void Events();
 
+	static void start();
+
 	static inline float delay;
+	static inline float draw_delay;
 	static inline std::vector<int> array;
 	static inline std::vector<IntElem> indexes;
 	static inline std::mt19937 rng;
@@ -59,14 +61,15 @@ private:
 
 	static inline std::vector<int> swap;
 
-	static inline SDL_Window* window;
-	static inline SDL_Renderer* renderer;
-
-	static inline int windowWith;
-	static inline int windowHeight;
+	static inline int windowWith = 800;
+	static inline int windowHeight = 800;
 
 	static inline int paddingPx;
 
+	static inline std::thread drawThread;
+
 	static inline bool running;
+
+	static constexpr int FPS = 120;
 
 };
