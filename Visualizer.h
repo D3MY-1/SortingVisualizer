@@ -2,7 +2,7 @@
 #include <SDL.h>
 #include <random>
 #include <vector>
-#include "IntElem.h"
+#include "ElemTracker.h"
 #include <set>
 #include <thread>
 #include <mutex>
@@ -15,11 +15,12 @@ public:
 
 	static void Setup(int UpdatePerSecond, int ArraySize);
 
-	typedef bool (*tFunc)(IntElem, IntElem);
-	typedef void(*tSort)(std::vector<IntElem>::iterator, std::vector<IntElem>::iterator, tFunc f);
+	typedef ElemTracker<int> IntTracked;
+	typedef bool (*tFunc)(const IntTracked&, const IntTracked&);
+	typedef void(*tSort)(std::vector<IntTracked>::iterator, std::vector<IntTracked>::iterator, tFunc f);
 	static void Start(tSort func);
-	typedef void(*tIndexArray)(std::vector<IntElem>&);
-	typedef void(*tElemArray)(std::vector<int>&);
+	//typedef void(*tIndexArray)(std::vector<IntTracked>&);
+	typedef void(*tElemArray)(std::vector<IntTracked>&);
 	static void Start(tElemArray vec);
 	/// <summary>
 	/// Highlights element with red color
@@ -31,6 +32,8 @@ public:
 	/// </summary>
 	/// <param name="ElemIdx index of element that will be highlited green"></param>
 	static void isInPlace(int ElemIdx);
+
+	static std::pair<std::int64_t, std::int64_t> GetStats();
 	
 	static void Swap(int iDx1, int iDx2);
 
@@ -47,10 +50,12 @@ private:
 
 	static void start();
 
+	static inline std::int64_t compCount;
+	static inline std::int64_t arrayChangesCount;
+
 	static inline std::chrono::microseconds delay;
 	static inline std::chrono::microseconds draw_delay;
-	static inline std::vector<int> array;
-	static inline std::vector<IntElem> indexes;
+	static inline std::vector<IntTracked> array;
 	static inline std::mt19937 rng;
 
 	/* TODO: Make one array that will handle all colors 

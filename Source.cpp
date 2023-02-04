@@ -22,7 +22,6 @@ namespace Test
             sorted = true;
 
             int a;
-            //int b = 0;
 
             for (auto i = first; ; i++)
             {
@@ -45,7 +44,7 @@ namespace Test
         }
     }
 
-    void BubblesortB(std::vector<int>& vec)
+    void BubblesortB(std::vector<Visualizer::IntTracked>& vec)
     {
         bool sorted = false;
 
@@ -79,7 +78,7 @@ namespace Test
         }
     }
 
-    void ShakerSortB(std::vector<int>& vec)
+    void ShakerSortB(std::vector<Visualizer::IntTracked>& vec)
     {
         bool sorted = false;
 
@@ -121,7 +120,7 @@ namespace Test
         }
     }
 
-    void GnomeSortB(std::vector<int>& vec)
+    void GnomeSortB(std::vector<Visualizer::IntTracked>& vec)
     {
         int pos = 0;
         int temp = 0;
@@ -148,7 +147,7 @@ namespace Test
         }
     }
 
-    void SelectionSortB(std::vector<int>& vec)
+    void SelectionSortB(std::vector <Visualizer::IntTracked> & vec)
     {
 
         int it = 0;
@@ -159,7 +158,7 @@ namespace Test
 
 
 
-        int temp = 0;
+        Visualizer::IntTracked temp = 0;
 
         while (!sorted)
         {
@@ -194,17 +193,17 @@ namespace Test
         }
     }
 
-    void InsertionSortB(std::vector<int>& vec)
+    void InsertionSortB(std::vector<Visualizer::IntTracked>& vec)
     {
-        int i, key, j;
+        int i, j,key;
         for (i = 1; i < vec.size(); i++)
         {
-            key = vec[i];
+            key = int(vec[i]);
             j = i - 1;
 
             
 
-            while (j >= 0 && int(vec[j]) > key)
+            while (j >= 0 && vec[j] > key)
             {
                 Visualizer::HighlightRed(j);
                 Visualizer::Update();
@@ -219,22 +218,22 @@ namespace Test
         Visualizer::Update();
     }
 
-    void RadixSortB(std::vector<int>& vec)
+    void RadixSortB(std::vector<Visualizer::IntTracked>& vec)
     {
-        auto countingSort = [](std::vector<int>& vec, int exp) {
+        auto countingSort = [](std::vector<Visualizer::IntTracked>& vec, int exp) {
             std::vector<int> outp(vec.size());
             int i, count[10] = { 0 };
 
             for (i = 0; i < vec.size(); i++)
-                count[(vec[i] / exp) % 10]++;
+                count[(int(vec[i]) / exp) % 10]++;
 
             for (i = 1; i < 10; i++)
                 count[i] += count[i - 1];
 
             for (i = vec.size() - 1; i >= 0; i--)
             {
-                outp[count[(vec[i] / exp) % 10] - 1] = vec[i];
-                count[(vec[i] / exp) % 10]--;
+                outp[count[(int(vec[i]) / exp) % 10] - 1] = int(vec[i]);
+                count[(int(vec[i]) / exp) % 10]--;
             }
 
             for (i = 0; i < vec.size(); i++)
@@ -246,7 +245,7 @@ namespace Test
                 
         };
 
-        int max = *std::max_element(vec.begin(), vec.end());
+        int max = int( * std::max_element(vec.begin(), vec.end()));
 
         for (int exp = 1; max / exp > 0; exp *= 10)
             countingSort(vec, exp);
@@ -312,7 +311,7 @@ int main(int argc, char* argv[]) {
             Amount = GetInput<int>();
         } while (Amount < 10 || Amount > 800);
 
-        std::cout << "Nice!!!\n Visualizing...";
+        std::cout << " Nice!!!\n Visualizing...";
         Visualizer::SetupWindow(800, 800);
 
         Visualizer::Setup(Speed, Amount);
@@ -344,6 +343,11 @@ int main(int argc, char* argv[]) {
         case 8:
             Visualizer::Start(std::stable_sort);
         }
+
+        auto stats = Visualizer::GetStats();
+        std::cout << "\n Array was sorted!!!\n Stats\n Number of comparisons is " << stats.first << "\n Number of Array changes is " << stats.second << "\n Press Enter To Continue...";
+        getchar();
+
         system("cls");
     }
 
