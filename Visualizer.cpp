@@ -9,9 +9,9 @@ void Visualizer::SetupWindow(int width, int height)
 
 void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 {
-	IntTracked::EnableTracking();
-	
-	
+
+	IntElem::SetComp(Visualizer::Comparison);
+	IntElem::SetSwap(Visualizer::isInPlace);
 
 	if (ArraySize * 4 < windowWith)
 		paddingPx = 2;
@@ -23,14 +23,20 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 	
 	delay = UpdatePerSecond > 0 ?  std::chrono::milliseconds(1000) / UpdatePerSecond : std::chrono::microseconds(0);
 	draw_delay = std::chrono::milliseconds(1000) / FPS;
-	array = std::vector<IntTracked>();
-	array.reserve(ArraySize);
+	array = std::vector<int>(ArraySize);
+	indexes = std::vector<IntElem>(ArraySize);
 
-	//IntElem::SetArray(&array);
+	IntElem::SetArray(&array);
 
 	for (int i = 0; i < ArraySize; i++)
 	{
-		array.emplace_back(i + 1, i);
+		indexes[i] = i;
+		indexes[i].setIndex(i);
+	}
+
+	for (int i = 0; i < array.size(); i++)
+	{
+		array[i] = i + 1;
 	}
 
 	std::random_device rd;
@@ -42,20 +48,12 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 
 void Visualizer::Start(tSort func)
 {
-	IntTracked::SetComp([](int a) {
-		HighlightRed(a);
-		compCount++; });
-	IntTracked::SetChange([](int a) {
-		HighlightRed(a);
-		arrayChangesCount++;});
-	compCount = 0;
-	arrayChangesCount = 0;
-
-	IntTracked::EnableTracking();
-	auto lamda = [](const IntTracked& a, const IntTracked& b)
+	IntElem::EnableTracking();
+	auto lamda = [](IntElem a, IntElem b)
 	{	
+		Visualizer::Draw();
 		bool c = a < b;
-		Visualizer::Update();
+		
 		return c;
 	};
 	std::shuffle(array.begin(), array.end(), rng);
@@ -65,9 +63,14 @@ void Visualizer::Start(tSort func)
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	func(array.begin(), array.end(),lamda);
+	func(indexes.begin(), indexes.end(),lamda);
 	running = false;
 	drawThread.join();
+
+	for (int i = 0; i < indexes.size(); i++)
+	{
+		indexes[i] = i;
+	}
 
 	
 
@@ -80,13 +83,7 @@ void Visualizer::Start(tSort func)
 
 void Visualizer::Start(tElemArray f)
 {
-	IntTracked::SetComp([](int a) {
-		compCount++; });
-	IntTracked::SetChange([](int a) {
-		arrayChangesCount++; });
-	compCount = 0;
-	arrayChangesCount = 0;
-
+	IntElem::DisableTracking();
 	std::shuffle(array.begin(), array.end(), rng);
 	
 	running = true;
@@ -138,11 +135,6 @@ void Visualizer::Update()
 		
 }
 
-std::pair<std::int64_t,std::int64_t> Visualizer::GetStats()
-{
-	return { compCount,arrayChangesCount };
-}
-
 
 /* TODO: Rewrite function so that it draws only 60 times or 120
          Make another function that will calculate how much time and so on
@@ -168,7 +160,7 @@ void Visualizer::draw(SDL_Renderer* renderer)
 
 	for (int i = 0; i < array.size(); i++)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * i,windowHeight - floor(((float)windowHeight / (float)array.size()) * int(array[i])) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * int(array[i])) };
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * i,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[i]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[i]]) };
 			SDL_RenderFillRectF(renderer, &rect);
 	}
 
@@ -196,7 +188,7 @@ void Visualizer::draw(SDL_Renderer* renderer)
 
 	for (auto& a : draw)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * int(array[a])) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * int(array[a])) };
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
 	
@@ -204,7 +196,7 @@ void Visualizer::draw(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
 	for (auto& a : swap)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * int(array[a])) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * int(array[a])) };
+		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
 
@@ -280,7 +272,7 @@ void Visualizer::Events()
 
 void Visualizer::Swap(int iDx1, int iDx2)
 {
-	IntTracked temp = array[iDx1];
+	int temp = array[iDx1];
 	array[iDx1] = array[iDx2];
 	array[iDx2] = temp;
 }

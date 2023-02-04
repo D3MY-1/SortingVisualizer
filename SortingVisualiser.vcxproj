@@ -143,7 +143,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ElemTracker.h" />
+    <ClInclude Include="IntElem.h" />
     <ClInclude Include="Visualizer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>

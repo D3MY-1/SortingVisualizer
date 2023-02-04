@@ -26,7 +26,7 @@
     <ClInclude Include="Visualizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ElemTracker.h">
+    <ClInclude Include="IntElem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
