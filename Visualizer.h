@@ -22,24 +22,23 @@ public:
 	typedef void(*tElemArray)(std::vector<int>&);
 	static void Start(tElemArray vec);
 	/// <summary>
-	/// Call When Comparison is performed
+	/// Highlights element with red color
 	/// </summary>
-	/// <param name="Elem1 pass 1 element that is compared"></param>
-	/// <param name="Elem2 pass 2 element that is compared"></param>
-	static void Comparison(int Elem);
+	/// <param name="ElemIdx index of element that will be highlited red"></param>
+	static void HighlightRed(int ElemIdx);
 	/// <summary>
-	/// Call When Swapping is performed
+	/// Call when element is in place highlights it ith green color
 	/// </summary>
-	/// <param name="Elem1 pass 1 element that is Swapped"></param>
-	/// <param name="Elem2 pass 2 element that is Swaapped"></param>
-	static void isInPlace(int Elem);
-	/// <summary>
-	/// Call at end of 1 cycle
-	/// </summary>
+	/// <param name="ElemIdx index of element that will be highlited green"></param>
+	static void isInPlace(int ElemIdx);
 	
 	static void Swap(int iDx1, int iDx2);
 
-	static void Draw();
+	/// <summary>
+	/// Updates highlights array and controls sorting speed.
+	/// Call after comparison was performed
+	/// </summary>
+	static void Update();
 
 private:
 	static void draw(SDL_Renderer* renderer);

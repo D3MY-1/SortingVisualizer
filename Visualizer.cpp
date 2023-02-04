@@ -93,26 +93,24 @@ void Visualizer::Start(tElemArray f)
 	running = false;
 	drawThread.join();
 	
-	//comp = std::vector<int>();
 	comp = std::set<int>();
 	compDrawing = std::set<int>();
 	swap = std::vector<int>();
 	history = std::set<int>();
 }
 
-void Visualizer::Comparison(int Elem)
+void Visualizer::HighlightRed(int ElemIdx)
 {
-	
-	comp.insert(Elem);
+	comp.insert(ElemIdx);
 }
 
-void Visualizer::isInPlace(int Elem)
+void Visualizer::isInPlace(int ElemIdx)
 {
 	swap.clear();
-	swap.emplace_back(Elem);
+	swap.emplace_back(ElemIdx);
 }
 
-void Visualizer::Draw()
+void Visualizer::Update()
 {
 	if (!running)
 		return;
@@ -125,21 +123,15 @@ void Visualizer::Draw()
 			compDrawing.insert(a);
 		}
 		comp.clear();
-		if (delay > draw_delay)
-			compDrawing.clear();
 	}
 	
 	
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	//Events();
 	
 	if (delay > elapsed)
 		std::this_thread::sleep_for(delay - elapsed);
-	
-	//Events();
-	//std::this_thread::sleep_for(elapsed > delay ? std::chrono::microseconds(0) : delay - elapsed);
 		
 }
 
@@ -191,10 +183,7 @@ void Visualizer::draw(SDL_Renderer* renderer)
 		
 		
 		
-		if (delay < draw_delay)
-		{
-			compDrawing.clear();
-		}
+		compDrawing.clear();
 	}
 
 	for (auto& a : draw)
@@ -210,7 +199,6 @@ void Visualizer::draw(SDL_Renderer* renderer)
 		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * array[indexes[a]]) };
 		SDL_RenderFillRectF(renderer, &rect);
 	}
-	//		swap.clear();
 
 	SDL_RenderPresent(renderer);
 
@@ -245,9 +233,6 @@ void Visualizer::start()
 		return;
 	}
 
-	// SDL_GetWindowSize(window, &vWidth, &vHeight);
-
-	// renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 	if (!renderer) {

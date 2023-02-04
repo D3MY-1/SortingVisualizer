@@ -65,7 +65,7 @@ namespace Test
                     break;
                 }
 
-                Visualizer::Comparison(i + 1);
+                Visualizer::HighlightRed(i + 1);
                 if (vec[i + 1] < vec[i])
                 {
                     Visualizer::Swap(i, i + 1);
@@ -73,7 +73,7 @@ namespace Test
                     temp = vec.size();
                     temp = i;
                 }
-                Visualizer::Draw();
+                Visualizer::Update();
             }
             end = temp + 1;
         }
@@ -106,7 +106,7 @@ namespace Test
                     break;
                 }
 
-                Visualizer::Comparison(forward ? i + 1 : i);
+                Visualizer::HighlightRed(forward ? i + 1 : i);
                 if (vec[i + 1] < vec[i])
                 {
                     Visualizer::Swap(i, i + 1);
@@ -114,7 +114,7 @@ namespace Test
                     temp = forward ? vec.size() : 0;
                     temp = i;
                 }
-                Visualizer::Draw();
+                Visualizer::Update();
             }
             forward ? end = temp + 1 : start = temp + 1;
             forward = !forward;
@@ -143,8 +143,8 @@ namespace Test
                 pos--;
                 yes = true;
             }
-            Visualizer::Comparison(pos < vec.size() ? pos : pos - 1);
-            Visualizer::Draw();
+            Visualizer::HighlightRed(pos < vec.size() ? pos : pos - 1);
+            Visualizer::Update();
         }
     }
 
@@ -167,14 +167,14 @@ namespace Test
             sorted = true;
             for (int i = start; i < vec.size(); i++)
             {
-                Visualizer::Comparison(i);
-                Visualizer::Comparison(it);
+                Visualizer::HighlightRed(i);
+                Visualizer::HighlightRed(it);
                 if (vec[it] > vec[i])
                 {
                     it = i;
                     sorted = false;
                 }
-                Visualizer::Draw();
+                Visualizer::Update();
             }
             if (sorted)
             {
@@ -206,8 +206,8 @@ namespace Test
 
             while (j >= 0 && int(vec[j]) > key)
             {
-                Visualizer::Comparison(j);
-                Visualizer::Draw();
+                Visualizer::HighlightRed(j);
+                Visualizer::Update();
                 vec[j + 1] = vec[j];
                 j = j - 1;
                 
@@ -216,7 +216,7 @@ namespace Test
             Visualizer::isInPlace(j + 1);
             
         }
-        Visualizer::Draw();
+        Visualizer::Update();
     }
 
     void RadixSortB(std::vector<int>& vec)
@@ -240,8 +240,8 @@ namespace Test
             for (i = 0; i < vec.size(); i++)
             {
                 vec[i] = outp[i];
-                Visualizer::Comparison(i);
-                Visualizer::Draw();
+                Visualizer::HighlightRed(i);
+                Visualizer::Update();
             }
                 
         };
@@ -251,7 +251,7 @@ namespace Test
         for (int exp = 1; max / exp > 0; exp *= 10)
             countingSort(vec, exp);
 
-        Visualizer::Draw();
+        Visualizer::Update();
         
     }
 }
@@ -287,7 +287,7 @@ int main(int argc, char* argv[]) {
     while (true)
     {
         std::cout << "Hello to visualizer 0.2v !!!\n";
-        std::cout << "Choose 1 of 6 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n";
+        std::cout << "Choose 1 of 8 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n";
         bool wrong = true;
 
         int result;
@@ -317,8 +317,6 @@ int main(int argc, char* argv[]) {
 
         Visualizer::Setup(Speed, Amount);
         
-        //Visualizer::tSort2 sort = nullptr;
-        Visualizer::tSort sort1 = nullptr;
         
         switch (result)
         {
@@ -348,30 +346,6 @@ int main(int argc, char* argv[]) {
         }
         system("cls");
     }
-
-    
-
- //   void* f = static_cast<void(*)(std::vector<int>::iterator, std::vector<int>::iterator)>(Test::BubblesortA);
-
-    
-
- //   Visualizer vs;
- //   vs.Render(1,1,&std::sort);
-
- //0   template <typename Iterator>
-//    void* f = static_cast<void(*)(std::vector<int>::iterator, std::vector<int>::iterator)>(std::sort);
-//    std::function<void(std::vector<int>::iterator, std::vector<int>::iterator)> fs = static_cast<void(*)(std::vector<int>::iterator, std::vector<int>::iterator)>(std::sort);
-
-//    fs(a.begin(), a.end());
-
- //   std::vector<int> a{34,123,234,312412,56,36,};
-
-//    sortA(a.begin(), a.end());
-
-//    for (auto b : a)
-//    {
-//        std::cout << b << ' ';
-//    }
 
     return 0;
 }
