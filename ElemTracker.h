@@ -1,4 +1,4 @@
-#pragma once3
+#pragma once
 #include <vector>
 #include <iostream>
 
@@ -47,7 +47,7 @@ public:
 		{
 			if (l.index != -1)
 				comp(l.index);
-			else if (r.index != -1)
+			if (r.index != -1)
 				comp(r.index);
 		}
 		return l.value < r.value;
