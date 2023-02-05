@@ -54,6 +54,20 @@ namespace Test
         }
     }
 
+    template<typename _Iter, typename _Pred>
+    void InsertionSortA(_Iter begin, _Iter end, _Pred pred)
+    {
+        for (_Iter i = begin + 1; i != end; i++)
+        {
+            _Iter j = i;
+            while (j > begin && pred(*j, *(j - 1)))
+            {
+                std::iter_swap(j - 1, j);
+                j--;
+            }
+        }
+    }
+
     void BubblesortB(std::vector<Visualizer::IntTracked>& vec)
     {
         bool sorted = false;
@@ -264,34 +278,38 @@ namespace Test
         
     }
 
-    void QSortC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
+    void QSort_HuareC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
     {
         auto qsort = [&](int start, int end, auto&& sort)->void {
             if (start < end)
             {
                 int privotIndex = start;
-                int left = start + 1;
-                int right = end;
-                while (left <= right)
+                int left = start - 1;
+                int right = end + 1;
+                while (true)
                 {
-                    if (!pred(vec[privotIndex],vec[left]) && !pred(vec[right],vec[privotIndex]))
+                    do
                     {
                         left++;
-                        right--;
-                    }
-                    else if (pred(vec[privotIndex],vec[left]))
+
+                    } while (pred(vec[left], vec[privotIndex]));
+
+                    do
                     {
-                        std::swap(vec[left], vec[right]);
                         right--;
-                    }
-                    else
+
+                    } while (pred(vec[privotIndex], vec[right]));
+
+                    if (left >= right)
                     {
-                        left++;
+                        break;
                     }
+                    std::swap(vec[left], vec[right]);
                 }
-                std::swap(vec[privotIndex], vec[right]);
-                sort(start, right - 1, sort);
+                sort(start, right, sort);
                 sort(right + 1, end, sort);
+                //std::swap(vec[privotIndex], vec[right]);
+                
 
             }
         };
@@ -299,7 +317,227 @@ namespace Test
         qsort(0, vec.size() - 1, qsort);
 
     }
+    void QSortC(std::vector<Visualizer::IntTracked>& vec, Visualizer::tPred pred)
+    {
+        constexpr int threshold = 16;
+        auto qsort = [&](int start, int end, auto&& sort)->void {
+            if (end - start > threshold)
+            {
+                int mid = (start + end) / 2;
+                if (pred(vec[mid], vec[start]))
+                    std::swap(vec[start], vec[mid]);
+                if (pred(vec[end], vec[start]))
+                    std::swap(vec[start], vec[end]);
+                if (pred(vec[end], vec[mid]))
+                    std::swap(vec[end], vec[mid]);
+                auto privotIdx = mid;
+                int left = mid;
+                int right = mid;
+
+                while (true)
+                {
+                    do
+                    {
+                        left--;
+                    } while (left > start && pred(vec[left], vec[privotIdx]));
+
+                    do
+                    {
+                        right++;
+                    } while (right < end && pred(vec[privotIdx], vec[right]));
+
+                    if (right >= end || left <= start)
+                    {
+                        if (left > start)
+                        {
+                            std::swap(vec[left], vec[privotIdx - 1]);
+                            std::swap(vec[privotIdx - 1], vec[privotIdx]);
+                            privotIdx--;
+                        }
+                        else if (right < end)
+                        {
+                            std::swap(vec[right], vec[privotIdx + 1]);
+                            std::swap(vec[privotIdx + 1], vec[privotIdx]);
+                            privotIdx++;
+                        }
+                        else
+                            break;
+                    }
+                    else
+                        std::swap(vec[left], vec[right]);
+
+                }
+                sort(start, privotIdx, sort);
+                sort(privotIdx, end, sort);
+
+            }
+            else if (end > start)
+                InsertionSortA(vec.begin() + start, vec.begin() + end, pred);
+        };
+
+        qsort(0, vec.size() - 1, qsort);
+
+
+    }
+    void QSort_LomutoC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
+    {
+        auto sort = [&](int low, int high, auto&& sort)->void
+        {
+            if (low < high)
+            {
+                int pivotIdx = high;
+                int i = low - 1;
+                for (int j = low; j <= high - 1; j++)
+                {
+                    if (!pred(vec[pivotIdx], vec[j]))
+                    {
+                        i++;
+                        std::swap(vec[i], vec[j]);
+                    }
+                }
+                std::swap(vec[i + 1], vec[high]);
+                sort(low, i, sort);
+                sort(i + 2, high, sort);
+            }
+
+        };
+        sort(0, vec.size() - 1, sort);
+    }
+
+    void QSort_SedgewickC(std::vector<Visualizer::IntTracked>& vec, Visualizer::tPred pred)
+    {
+        constexpr int threshold = 16;
+        auto qsort = [&](int start, int end, auto&& sort)->void {
+
+            int left = start - 1;
+            int right = end + 1;
+            if (end - start > threshold)
+            {
+                int mid = (start + end) / 2;
+                if (pred(vec[mid], vec[start]))
+                    std::swap(vec[start], vec[mid]);
+                if (pred(vec[end], vec[start]))
+                    std::swap(vec[start], vec[end]);
+                if (pred(vec[end], vec[mid]))
+                    std::swap(vec[end], vec[mid]);
+                auto privot = vec[mid];
+                
+                while (true)
+                {
+                    do
+                    {
+                        left++;
+
+                    } while (pred(vec[left], privot));
+
+                    do
+                    {
+                        right--;
+
+                    } while (pred(privot, vec[right]));
+
+                    if (left >= right)
+                    {
+                        break;
+                    }
+                    std::swap(vec[left], vec[right]);
+                }
+                sort(start, right, sort);
+                sort(right + 1, end, sort);
+            }
+            else if (end > start)
+                Test::InsertionSortA(vec.begin() + start, vec.begin() + end + 1, pred);
+        };
+
+        qsort(0, vec.size() - 1, qsort);
+        
+    }
+
+    void HeapSortC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
+    {
+        auto sort = [&](int i,int N,auto&& sort)->void {
+            int largest = i;
+
+            int l = 2 * i + 1;
+
+            int r = 2 * i + 2;
+
+            if (l < N && pred(vec[largest], vec[l]))
+                largest = l;
+            if (r < N && pred(vec[largest], vec[r]))
+                largest = r;
+            if (largest != i)
+            {
+                std::swap(vec[i], vec[largest]);
+                sort(largest,N, sort);
+            }
+        };
+
+        for (int i = vec.size() / 2 - 1; i >= 0; i--)
+            sort(i,vec.size(), sort);
+
+        for (int i = vec.size() - 1; i > 0; i--)
+        {
+            std::swap(vec[0], vec[i]);
+
+
+            sort(0,i, sort);
+        }
+
+    }
+
+    void MergeSortC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
+    {
+        auto merge = [&](int left, int right, auto&& merge)->void {
+
+            if (right - left <= 1)
+                return;
+            int mid = left + (right - left) / 2;
+
+
+
+            merge(left, mid, merge);
+            merge(mid, right, merge);
+
+            std::vector<int> L(vec.begin() + left, vec.begin() + mid);
+            std::vector<int> R(vec.begin() + mid, vec.begin() + right);
+
+            int i = 0, j = 0, k = left;
+
+            while (i < L.size() && j < R.size())
+            {
+                if (!pred(R[j],L[i]))
+                {
+                    vec[k] = L[i];
+                    i++;
+                }
+                else
+                {
+                    vec[k] = R[j];
+                    j++;
+                }
+                k++;
+            }
+
+            while (i < L.size())
+            {
+                vec[k] = L[i];
+                i++;
+                k++;
+            }
+            while (j < R.size())
+            {
+                vec[k] = R[j];
+                j++;
+                k++;
+            }
+
+        };
+        merge(0, vec.size(), merge);
+    }
+
 }
+
 
 
 
@@ -334,8 +572,8 @@ int main(int argc, char* argv[]) {
 
     while (true)
     {
-        std::cout << "Hello to visualizer 0.2v !!!\n";
-        std::cout << "Choose 1 of 9 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n 9. Simple Quicksort\n";
+        std::cout << "Hello to visualizer 0.5v !!!\n";
+        std::cout << "Choose 1 of 11 sorting algorithms!\n1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n 9. Quicksort Hoare variation\n 10. Quicksort Lamuto variation\n 11. Quicksort Sedgewick variation\n 12. Quicksort my variation\n 13. Heap sort\n 14. Binary Merge sort\n";
         bool wrong = true;
 
         int result;
@@ -343,7 +581,7 @@ int main(int argc, char* argv[]) {
         do
         {
             result = GetInput<int>();
-        } while (result >= 10 || result <= 0);
+        } while (result >= 15 || result <= 0);
 
         std::cout << " Nice!\n Now you need to input Speed of algorythm and Amount of elements!!!\n";
         std::cout << " Enter Speed (0 for max speed)!!!\n";
@@ -358,7 +596,7 @@ int main(int argc, char* argv[]) {
         do
         {
             Amount = GetInput<int>();
-        } while (Amount < 10 || Amount > 800);
+        } while (Amount < 11 || Amount > 800);
 
         std::cout << " Nice!!!\n Visualizing...";
         Visualizer::SetupWindow(800, 800);
@@ -391,8 +629,24 @@ int main(int argc, char* argv[]) {
             break;
         case 8:
             Visualizer::Start(std::stable_sort);
+            break;
         case 9:
+            Visualizer::Start(Test::QSort_HuareC);
+            break;
+        case 10:
+            Visualizer::Start(Test::QSort_LomutoC);
+            break;
+        case 11:
+            Visualizer::Start(Test::QSort_SedgewickC);
+            break;
+        case 12:
             Visualizer::Start(Test::QSortC);
+            break;
+        case 13:
+            Visualizer::Start(Test::HeapSortC);
+            break;
+        case 14:
+            Visualizer::Start(Test::MergeSortC);
         }
 
         auto stats = Visualizer::GetStats();
