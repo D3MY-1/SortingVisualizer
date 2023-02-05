@@ -263,7 +263,46 @@ namespace Test
         Visualizer::Update();
         
     }
+
+    void QSortC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
+    {
+        auto qsort = [&](int start, int end, auto&& sort)->void {
+            if (start < end)
+            {
+                int privotIndex = start;
+                int left = start + 1;
+                int right = end;
+                while (left <= right)
+                {
+                    if (!pred(vec[privotIndex],vec[left]) && !pred(vec[right],vec[privotIndex]))
+                    {
+                        left++;
+                        right--;
+                    }
+                    else if (pred(vec[privotIndex],vec[left]))
+                    {
+                        std::swap(vec[left], vec[right]);
+                        right--;
+                    }
+                    else
+                    {
+                        left++;
+                    }
+                }
+                std::swap(vec[privotIndex], vec[right]);
+                sort(start, right - 1, sort);
+                sort(right + 1, end, sort);
+
+            }
+        };
+
+        qsort(0, vec.size() - 1, qsort);
+
+    }
 }
+
+
+
 
 template <typename T>
 T GetInput()
@@ -296,7 +335,7 @@ int main(int argc, char* argv[]) {
     while (true)
     {
         std::cout << "Hello to visualizer 0.2v !!!\n";
-        std::cout << "Choose 1 of 8 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n";
+        std::cout << "Choose 1 of 9 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n 9. Simple Quicksort\n";
         bool wrong = true;
 
         int result;
@@ -304,7 +343,7 @@ int main(int argc, char* argv[]) {
         do
         {
             result = GetInput<int>();
-        } while (result >= 9 || result <= 0);
+        } while (result >= 10 || result <= 0);
 
         std::cout << " Nice!\n Now you need to input Speed of algorythm and Amount of elements!!!\n";
         std::cout << " Enter Speed (0 for max speed)!!!\n";
@@ -352,6 +391,8 @@ int main(int argc, char* argv[]) {
             break;
         case 8:
             Visualizer::Start(std::stable_sort);
+        case 9:
+            Visualizer::Start(Test::QSortC);
         }
 
         auto stats = Visualizer::GetStats();

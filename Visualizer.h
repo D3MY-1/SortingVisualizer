@@ -17,12 +17,15 @@ public:
 	static void Setup(int UpdatePerSecond, int ArraySize);
 
 	typedef ElemTracker<int> IntTracked;
-	typedef bool (*tFunc)(const IntTracked&, const IntTracked&);
-	typedef void(*tSort)(std::vector<IntTracked>::iterator, std::vector<IntTracked>::iterator, tFunc f);
-	static void Start(tSort func);
+	typedef bool (*tPred)(const IntTracked&, const IntTracked&);
+	typedef void(*tSort)(std::vector<IntTracked>::iterator, std::vector<IntTracked>::iterator, tPred f);
+	static void Start(tSort func, bool AutoVisualize = true);
 	//typedef void(*tIndexArray)(std::vector<IntTracked>&);
 	typedef void(*tElemArray)(std::vector<IntTracked>&);
 	static void Start(tElemArray vec);
+
+	typedef void(*tSort2)(std::vector<IntTracked>&, tPred f);
+	static void Start(tSort2 vec, bool AutoVisualize = true);
 	/// <summary>
 	/// Highlights element with red color
 	/// </summary>

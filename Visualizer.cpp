@@ -38,17 +38,73 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 	rng = std::mt19937(rd());
 }
 
-
-
-
-void Visualizer::Start(tSort func)
+void Visualizer::Start(tSort2 func, bool AutoVisualize)
 {
-	IntTracked::SetComp([](int a) {
-		Highlight(a, {255,0,0});
-		compCount++; });
-	IntTracked::SetChange([](int a) {
-		Highlight(a, {255,0,0});
-		arrayChangesCount++;});
+	if (AutoVisualize)
+	{
+		IntTracked::SetComp([](int a) {
+			Highlight(a, { 255,0,0 });
+			compCount++; });
+		IntTracked::SetChange([](int a) {
+			Highlight(a, { 255,0,0 });
+			arrayChangesCount++; });
+	}
+	else
+	{
+		IntTracked::SetComp([](int a) {
+			compCount++; });
+		IntTracked::SetChange([](int a) {
+			arrayChangesCount++; });
+	}
+
+	compCount = 0;
+	arrayChangesCount = 0;
+
+	IntTracked::EnableTracking();
+	auto lamda = [](const IntTracked& a, const IntTracked& b)
+	{
+		bool c = a < b;
+		Visualizer::Update();
+		return c;
+	};
+	std::shuffle(array.begin(), array.end(), rng);
+	running = true;
+
+	drawThread = std::thread(start);
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	func(array, lamda);
+	running = false;
+	drawThread.join();
+
+
+
+
+	highlight = {};
+}
+
+
+void Visualizer::Start(tSort func, bool AutoVisualize)
+{
+	if (AutoVisualize)
+	{
+		IntTracked::SetComp([](int a) {
+			Highlight(a, { 255,0,0 });
+			compCount++; });
+		IntTracked::SetChange([](int a) {
+			Highlight(a, { 255,0,0 });
+			arrayChangesCount++; });
+	}
+	else
+	{
+		IntTracked::SetComp([](int a) {
+			compCount++; });
+		IntTracked::SetChange([](int a) {
+			arrayChangesCount++; });
+	}
+
+
 	compCount = 0;
 	arrayChangesCount = 0;
 
@@ -82,6 +138,7 @@ void Visualizer::Start(tElemArray f)
 		compCount++; });
 	IntTracked::SetChange([](int a) {
 		arrayChangesCount++; });
+	
 	compCount = 0;
 	arrayChangesCount = 0;
 
