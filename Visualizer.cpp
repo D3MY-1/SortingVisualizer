@@ -7,6 +7,7 @@ void Visualizer::SetupWindow(int width, int height)
 }
 
 
+
 void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 {
 	IntTracked::EnableTracking();
@@ -43,10 +44,10 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 void Visualizer::Start(tSort func)
 {
 	IntTracked::SetComp([](int a) {
-		HighlightRed(a);
+		Highlight(a, {255,0,0});
 		compCount++; });
 	IntTracked::SetChange([](int a) {
-		HighlightRed(a);
+		Highlight(a, {255,0,0});
 		arrayChangesCount++;});
 	compCount = 0;
 	arrayChangesCount = 0;
@@ -72,10 +73,7 @@ void Visualizer::Start(tSort func)
 	
 
 	
-	comp = std::set<int>();
-	compDrawing = std::set<int>();
-	swap = std::vector<int>();
-	history = std::set<int>();
+	highlight = {};
 }
 
 void Visualizer::Start(tElemArray f)
@@ -96,21 +94,12 @@ void Visualizer::Start(tElemArray f)
 	running = false;
 	drawThread.join();
 	
-	comp = std::set<int>();
-	compDrawing = std::set<int>();
-	swap = std::vector<int>();
-	history = std::set<int>();
+	highlight = {};
 }
 
-void Visualizer::HighlightRed(int ElemIdx)
+void Visualizer::Highlight(int ElemIdx,SDL_Color col)
 {
-	comp.insert(ElemIdx);
-}
-
-void Visualizer::isInPlace(int ElemIdx)
-{
-	swap.clear();
-	swap.emplace_back(ElemIdx);
+	highlight[col].insert(ElemIdx);
 }
 
 void Visualizer::Update()
@@ -121,11 +110,9 @@ void Visualizer::Update()
 	{
 		std::lock_guard<std::mutex> guard(comp_mutex);
 
-		for (auto a : comp)
-		{
-			compDrawing.insert(a);
-		}
-		comp.clear();
+		for (auto& a : highlight)
+			highlightDrawing[a.first].merge(std::move(a.second));
+		highlight = {};
 	}
 	
 	
@@ -174,38 +161,30 @@ void Visualizer::draw(SDL_Renderer* renderer)
 
 	SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
 	
-
-	std::set<int> draw;
 	{
 		std::lock_guard<std::mutex> guard(comp_mutex);
 
-		if (compDrawing.size() > 0)
+
+		for (auto& a : highlightDrawing)
 		{
-			draw = compDrawing;
-			history = compDrawing;
+			if (a.second.size() > 0)
+				drawing[a.first] = std::move(a.second);
+
 		}
-			
-		else
-			draw = history;
-
-		
-		
-		
-		compDrawing.clear();
+		highlightDrawing = {};
+		//highlightDrawing.clear();
 	}
 
-	for (auto& a : draw)
+	for (auto& elem : drawing)
 	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * int(array[a])) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * int(array[a])) };
-		SDL_RenderFillRectF(renderer, &rect);
-	}
-	
-
-	SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
-	for (auto& a : swap)
-	{
-		rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * int(array[a])) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * int(array[a])) };
-		SDL_RenderFillRectF(renderer, &rect);
+		auto col = elem.first;
+		SDL_SetRenderDrawColor(renderer, col.r, col.g, col.b,col.a);
+		for (auto& a : elem.second)
+		{
+			rect = SDL_FRect{ (float)(widthPer1 + paddingPx) * a,windowHeight - floor(((float)windowHeight / (float)array.size()) * int(array[a])) ,(float)widthPer1,floor(((float)windowHeight / (float)array.size()) * int(array[a])) };
+			SDL_RenderFillRectF(renderer, &rect);
+		}
+		
 	}
 
 	SDL_RenderPresent(renderer);
@@ -227,7 +206,7 @@ void Visualizer::start()
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 
-	
+	drawing = {};
 
 	window = SDL_CreateWindow(
 		"Cringe visuals",
@@ -251,7 +230,8 @@ void Visualizer::start()
 		Events();
 		draw(renderer);
 	}
-	
+	highlightDrawing = {};
+
 	draw(renderer);
 
 	SDL_Delay(2000);
@@ -260,6 +240,9 @@ void Visualizer::start()
 	window = nullptr;
 	SDL_DestroyRenderer(renderer);
 	renderer = nullptr;
+
+
+	
 }
 
 void Visualizer::Events()

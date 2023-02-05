@@ -9,6 +9,16 @@
 #undef main
 
 
+void HighlightRed(int idx)
+{
+    Visualizer::Highlight(idx, { 255,0,0 });
+}
+
+void isInPlace(int idx)
+{
+    Visualizer::Highlight(idx, { 0,255,0 });
+}
+
 namespace Test
 {
     template <class _Iter,typename Pred>
@@ -60,11 +70,11 @@ namespace Test
             {
                 if (i + 1 >= end)
                 {
-                    Visualizer::isInPlace(end - 1);
+                    isInPlace(end - 1);
                     break;
                 }
 
-                Visualizer::HighlightRed(i + 1);
+                HighlightRed(i + 1);
                 if (vec[i + 1] < vec[i])
                 {
                     Visualizer::Swap(i, i + 1);
@@ -101,11 +111,11 @@ namespace Test
             {
                 if (forward ? i + 1 >= end : i < start)
                 {
-                    Visualizer::isInPlace(forward ? end - 1 : start);
+                    isInPlace(forward ? end - 1 : start);
                     break;
                 }
 
-                Visualizer::HighlightRed(forward ? i + 1 : i);
+                HighlightRed(forward ? i + 1 : i);
                 if (vec[i + 1] < vec[i])
                 {
                     Visualizer::Swap(i, i + 1);
@@ -132,7 +142,7 @@ namespace Test
             if (pos == 0 || vec[pos] >= vec[pos - 1])
             {
                 if (yes)
-                    Visualizer::isInPlace(pos);
+                    isInPlace(pos);
                 pos++;
                 yes = false;
             }
@@ -142,7 +152,7 @@ namespace Test
                 pos--;
                 yes = true;
             }
-            Visualizer::HighlightRed(pos < vec.size() ? pos : pos - 1);
+            HighlightRed(pos < vec.size() ? pos : pos - 1);
             Visualizer::Update();
         }
     }
@@ -166,8 +176,8 @@ namespace Test
             sorted = true;
             for (int i = start; i < vec.size(); i++)
             {
-                Visualizer::HighlightRed(i);
-                Visualizer::HighlightRed(it);
+                HighlightRed(i);
+                HighlightRed(it);
                 if (vec[it] > vec[i])
                 {
                     it = i;
@@ -185,7 +195,7 @@ namespace Test
                         break;
                     }
             }
-            Visualizer::isInPlace(start);
+            isInPlace(start);
             temp = vec[it];
             vec[it] = vec[start];
             vec[start] = temp;
@@ -205,14 +215,14 @@ namespace Test
 
             while (j >= 0 && vec[j] > key)
             {
-                Visualizer::HighlightRed(j);
+                HighlightRed(j);
                 Visualizer::Update();
                 vec[j + 1] = vec[j];
                 j = j - 1;
                 
             }
             vec[j + 1] = key;
-            Visualizer::isInPlace(j + 1);
+            isInPlace(j + 1);
             
         }
         Visualizer::Update();
@@ -239,7 +249,7 @@ namespace Test
             for (i = 0; i < vec.size(); i++)
             {
                 vec[i] = outp[i];
-                Visualizer::HighlightRed(i);
+                HighlightRed(i);
                 Visualizer::Update();
             }
                 

@@ -6,6 +6,7 @@
 #include <set>
 #include <thread>
 #include <mutex>
+#include <unordered_map>
 
 class Visualizer
 {
@@ -25,13 +26,9 @@ public:
 	/// <summary>
 	/// Highlights element with red color
 	/// </summary>
-	/// <param name="ElemIdx index of element that will be highlited red"></param>
-	static void HighlightRed(int ElemIdx);
-	/// <summary>
-	/// Call when element is in place highlights it ith green color
-	/// </summary>
-	/// <param name="ElemIdx index of element that will be highlited green"></param>
-	static void isInPlace(int ElemIdx);
+	/// <param name="ElemIdx index of element that will be highlited with col"></param>
+	/// <param anme = "col" color in what element will be highlited></param>
+	static void Highlight(int ElemIdx,SDL_Color col);
 
 	static std::pair<std::int64_t, std::int64_t> GetStats();
 	
@@ -42,6 +39,24 @@ public:
 	/// Call after comparison was performed
 	/// </summary>
 	static void Update();
+
+
+
+
+private:
+	class ColorHash
+	{
+	public:
+		size_t operator()(const SDL_Color& col) const
+		{
+			return ((col.r & 0xff) << 24) + ((col.g & 0xff) << 16) + ((col.b & 0xff) << 8) + (col.a & 0xff);
+		}
+
+		bool operator()(const SDL_Color& l, const SDL_Color& r) const
+		{
+			return l.r == r.r && l.g == r.g && r.b == l.b && r.a == l.a;
+		}
+	};
 
 private:
 	static void draw(SDL_Renderer* renderer);
@@ -62,17 +77,16 @@ private:
 			 Maybe make an array that will contain all pillar collors so it will eliminate unnenasary drawing 
 	*/
 	// For Multithreading
-	static inline std::set<int> compDrawing;
-	static inline std::set<int> history;
+	typedef std::unordered_map<SDL_Color, std::set<int>, ColorHash, ColorHash> tDrawable;
+
+	static inline tDrawable highlightDrawing;
+	static inline tDrawable drawing;
 
 
 
-	static inline std::set<int> comp;
+	static inline tDrawable highlight;
 
 	static inline std::mutex comp_mutex;
-
-
-	static inline std::vector<int> swap;
 
 	static inline int windowWith = 800;
 	static inline int windowHeight = 800;
