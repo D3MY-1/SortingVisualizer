@@ -572,8 +572,8 @@ int main(int argc, char* argv[]) {
 
     while (true)
     {
-        std::cout << "Hello to visualizer 0.5v !!!\n";
-        std::cout << "Choose 1 of 11 sorting algorithms!\n1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n 9. Quicksort Hoare variation\n 10. Quicksort Lamuto variation\n 11. Quicksort Sedgewick variation\n 12. Quicksort my variation\n 13. Heap sort\n 14. Binary Merge sort\n";
+        std::cout << " Hello to visualizer 0.5v !!!\n";
+        std::cout << " Choose 1 of 11 sorting algorithms!\n 1. Bubble sort\n 2. Shaker sort \n 3. Gnome sort\n 4. Selection sort\n 5. Insertion sort\n 6. Radix sort\n 7. std::sort\n 8. std::stable_sort\n 9. Quicksort Hoare variation\n 10. Quicksort Lamuto variation\n 11. Quicksort Sedgewick variation\n 12. Quicksort my variation\n 13. Heap sort\n 14. Binary Merge sort\n";
         bool wrong = true;
 
         int result;

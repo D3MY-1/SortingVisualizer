@@ -6,7 +6,8 @@ template<typename T>
 class ElemTracker
 {
 private:
-	typedef void (*tFunc)(int);
+	typedef void (*tChange)(int);
+	typedef void (*tCompare)(int,int);
 public:
 	ElemTracker(const T& a) :value(a),index(-1) {};
 	ElemTracker(const ElemTracker& a) : value(a.value),index(-1) {};
@@ -45,10 +46,7 @@ public:
 	{
 		if (track && comp != nullptr)
 		{
-			if (l.index != -1)
-				comp(l.index);
-			if (r.index != -1)
-				comp(r.index);
+			comp(l.index,r.index);
 		}
 		return l.value < r.value;
 	}
@@ -94,11 +92,11 @@ public:
 		track = false;
 	}
 
-	static void SetComp(tFunc f)
+	static void SetComp(tCompare f)
 	{
 		comp = f;
 	}
-	static void SetChange(tFunc f)
+	static void SetChange(tChange f)
 	{
 		change = f;
 	}
@@ -106,8 +104,8 @@ private:
 	T value;
 	const int index;
 	
-	static inline tFunc comp;
-	static inline tFunc change;
+	static inline tCompare comp;
+	static inline tChange change;
 	static inline bool track = false;
 	//static inline std::vector<IntElem>* indexes = nullptr;
 	//static inline const std::vector<ElemTrac>* array = nullptr;

@@ -62,6 +62,9 @@ private:
 	};
 
 private:
+
+	static void preStart(bool AutoVisualize);
+
 	static void draw(SDL_Renderer* renderer);
 
 	static void Events();
