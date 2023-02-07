@@ -3,6 +3,7 @@
 #include "Visualizer.h"
 #include <algorithm>
 #include <numeric>
+#include <stack>
 
 
 
@@ -320,8 +321,9 @@ namespace Test
     void QSortC(std::vector<Visualizer::IntTracked>& vec, Visualizer::tPred pred)
     {
         constexpr int threshold = 16;
-        auto qsort = [&](int start, int end, auto&& sort)->void {
-            if (end - start > threshold)
+
+        auto qsort = [&](int start, int end)->int {
+            if (end > start)
             {
                 int mid = (start + end) / 2;
                 if (pred(vec[mid], vec[start]))
@@ -367,18 +369,46 @@ namespace Test
                         std::swap(vec[left], vec[right]);
 
                 }
-                sort(start, privotIdx, sort);
-                sort(privotIdx, end, sort);
+                return privotIdx;
+                //sort(start, privotIdx, sort);
+               // sort(privotIdx, end, sort);
 
             }
-            else if (end > start)
-                InsertionSortA(vec.begin() + start, vec.begin() + end, pred);
         };
 
-        qsort(0, vec.size() - 1, qsort);
+        std::stack<std::pair<int, int>> partitions;
+        partitions.push({ 0,vec.size() - 1 });
 
 
+        while (!partitions.empty())
+        {
+            auto partition = partitions.top();
+            partitions.pop();
+            int start = partition.first;
+            int end = partition.second;
+            if (end - start > threshold)
+            {
+                int privIdx = qsort(partition.first, partition.second);
+
+
+                if (end - privIdx > privIdx - start)
+                {
+                    partitions.push({ privIdx,end });
+                    partitions.push({ start,privIdx });
+                }
+                else
+                {
+                    partitions.push({ start,privIdx });
+                    partitions.push({ privIdx,end });
+                }
+                
+            }
+            else
+                InsertionSortA(vec.begin() + start, vec.begin() + end, pred);
+        }
+        //qsort(0, vec.size() - 1, qsort);
     }
+
     void QSort_LomutoC(std::vector<Visualizer::IntTracked>& vec,Visualizer::tPred pred)
     {
         auto sort = [&](int low, int high, auto&& sort)->void
@@ -647,6 +677,7 @@ int main(int argc, char* argv[]) {
             break;
         case 14:
             Visualizer::Start(Test::MergeSortC);
+            break;
         }
 
         auto stats = Visualizer::GetStats();
