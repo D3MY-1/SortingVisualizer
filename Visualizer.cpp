@@ -42,13 +42,9 @@ void Visualizer::Setup(int UpdatePerSecond, int ArraySize)
 void Visualizer::preStart(bool AutoVisualize)
 {
 	IntTracked::EnableTracking();
-	bool resetDelay = false;
-	if(delay == std::chrono::milliseconds(0))
-	{
-		resetDelay = true;
-		long a = 1600000 / array.size();
-		delay = std::chrono::microseconds(a);
-	}
+	auto delTemp = delay;
+	long a = 40000 / array.size();
+	delay = std::chrono::microseconds(a);
 
 	static bool isShuffled;
 	isShuffled = false;
@@ -70,8 +66,7 @@ void Visualizer::preStart(bool AutoVisualize)
 	std::shuffle(array.begin(), array.end(),rng);
 
 	isShuffled = true;
-	if (resetDelay == true)
-		delay = std::chrono::microseconds(0);
+	delay = delTemp;
 
 	if (!AutoVisualize)
 	{
